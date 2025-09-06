@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Random Story Generator</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      height: 100vh;
+      font-family: "Poppins", sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: linear-gradient(-45deg, #ff9a9e, #fad0c4, #a18cd1, #fbc2eb);
+      background-size: 400% 400%;
+      animation: gradientMove 12s ease infinite;
+      overflow: hidden;
+    }
+    @keyframes gradientMove {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    .container {
+      text-align: center;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(15px);
+      padding: 40px;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+      max-width: 750px;
+      width: 90%;
+      z-index: 2;
+    }
+    h1 {
+      font-size: 2.5rem;
+      background: linear-gradient(45deg, #ff6b6b, #ffd93d, #6bcfff, #4facfe);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 25px;
+      animation: glow 2s infinite alternate;
+    }
+    @keyframes glow {
+      from { text-shadow: 0 0 15px #fff, 0 0 25px #ff6b6b; }
+      to { text-shadow: 0 0 25px #ffd93d, 0 0 35px #6bcfff; }
+    }
+    button {
+      background: linear-gradient(45deg, #6a11cb, #2575fc);
+      border: none;
+      color: white;
+      padding: 14px 32px;
+      border-radius: 50px;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: transform 0.3s ease, box-shadow 0.3s;
+      margin: 10px;
+    }
+    button:hover {
+      transform: scale(1.1);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+    }
+    #storyCard {
+      margin-top: 30px;
+      padding: 25px;
+      border-radius: 16px;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+      display: none;
+    }
+    #storyTitle {
+      font-size: 1.8rem;
+      font-weight: bold;
+      margin-bottom: 15px;
+      color: #2c3e50;
+    }
+    #storyContent {
+      font-size: 1.1rem;
+      color: #34495e;
+      line-height: 1.7;
+      margin-bottom: 15px;
+      min-height: 80px;
+    }
+    #storyMoral {
+      font-size: 1.3rem;
+      font-style: italic;
+      color: #16a085;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🌟 Random Story Generator 🌟</h1>
+    <button onclick="generateStory()">✨ Generate Story ✨</button>
+    <button id="autoBtn" onclick="toggleAutoMode()">🔄 Auto Mode</button>
+    
+    <div id="storyCard">
+      <p id="storyTitle"></p>
+      <p id="storyContent"></p>
+      <p id="storyMoral"></p>
+    </div>
+  </div>
+
+  <script>
+    const stories = [
+      {
+        title: "🦊 The Clever Crow",
+        content: "Once upon a time, on a hot summer day, a thirsty crow searched for water everywhere. Finally, it found a pot with very little water. Unable to reach it, the crow dropped pebbles into the pot one by one. Slowly, the water rose, and the crow drank happily.",
+        moral: "Where there is a will, there is a way."
+      },
+      {
+        title: "🦁🐭 The Lion and the Mouse",
+        content: "A mighty lion caught a tiny mouse. The mouse begged for mercy, promising to help someday. Laughing, the lion spared it. Later, the lion was trapped in a hunter’s net. The mouse came, chewed the ropes, and set the lion free.",
+        moral: "Kindness is never wasted."
+      },
+      {
+        title: "🐢🐇 The Tortoise and the Hare",
+        content: "A proud hare mocked a tortoise for being slow. They agreed to race. The hare sped ahead and slept midway. The tortoise moved steadily and reached the finish line first. The hare woke too late.",
+        moral: "Slow and steady wins the race."
+      },
+      {
+        title: "🌳 The Honest Woodcutter",
+        content: "A poor woodcutter dropped his axe in a river. A goddess appeared and offered him golden and silver axes, but he refused. Finally, she returned his old axe. Pleased by his honesty, she gifted him all three.",
+        moral: "Honesty is the best policy."
+      }
+    ];
+
+    let isTyping = false;  // prevent overlapping
+    let autoMode = false;
+    let autoTimeout;
+
+    function typeWriter(text, elementId, callback) {
+      let i = 0;
+      const element = document.getElementById(elementId);
+      element.innerHTML = "";
+      isTyping = true;
+      const interval = setInterval(() => {
+        element.innerHTML = text.substring(0, i + 1);
+        i++;
+        if (i >= text.length) {
+          clearInterval(interval);
+          isTyping = false;
+          if (callback) callback();
+        }
+      }, 40);
+    }
+
+    function generateStory(nextCallback) {
+      if (isTyping) return; // prevent overlap
+      const randomIndex = Math.floor(Math.random() * stories.length);
+      const story = stories[randomIndex];
+      document.getElementById("storyCard").style.display = "block";
+      document.getElementById("storyTitle").innerText = story.title;
+      document.getElementById("storyContent").innerHTML = "";
+      document.getElementById("storyMoral").innerHTML = "";
+
+      typeWriter(story.content, "storyContent", () => {
+        document.getElementById("storyMoral").innerText = "✨ Moral: " + story.moral + " ✨";
+        if (nextCallback) {
+          setTimeout(nextCallback, 4000);
+        }
+      });
+    }
+
+    function toggleAutoMode() {
+      autoMode = !autoMode;
+      const autoBtn = document.getElementById("autoBtn");
+      if (autoMode) {
+        autoBtn.innerText = "⏸ Stop Auto Mode";
+        autoPlay();
+      } else {
+        clearTimeout(autoTimeout);
+        autoBtn.innerText = "🔄 Auto Mode";
+      }
+    }
+
+    function autoPlay() {
+      if (!autoMode) return;
+      generateStory(() => {
+        autoTimeout = setTimeout(autoPlay, 1000);
+      });
+    }
+  </script>
+</body>
+</html>
